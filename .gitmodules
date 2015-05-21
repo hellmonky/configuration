@@ -1,0 +1,27 @@
+[submodule ".emacs.d/mode/company-mode"]
+	path = .emacs.d/mode/company-mode
+	url = https://github.com/company-mode/company-mode.git
+[submodule ".emacs.d/mode/rust-mode"]
+	path = .emacs.d/mode/rust-mode
+	url = https://github.com/rust-lang/rust-mode.git
+[submodule ".emacs.d/mode/haskell-mode"]
+	path = .emacs.d/mode/haskell-mode
+	url = https://github.com/haskell/haskell-mode.git
+[submodule ".emacs.d/auto-complete/auto-complete"]
+	path = .emacs.d/auto-complete/auto-complete
+	url = https://github.com/auto-complete/auto-complete.git
+[submodule ".emacs.d/auto-complete/auto-complete-clang"]
+	path = .emacs.d/auto-complete/auto-complete-clang
+	url = https://github.com/brianjcj/auto-complete-clang.git
+[submodule ".emacs.d/auto-complete/fuzzy-el"]
+	path = .emacs.d/auto-complete/fuzzy-el
+	url = https://github.com/auto-complete/fuzzy-el.git
+[submodule ".emacs.d/auto-complete/popup-el"]
+	path = .emacs.d/auto-complete/popup-el
+	url = https://github.com/auto-complete/popup-el.git
+[submodule ".emacs.d/auto-complete/yasnippet"]
+	path = .emacs.d/auto-complete/yasnippet
+	url = https://github.com/capitaomorte/yasnippet.git
+[submodule ".emacs.d/project/ecb"]
+	path = .emacs.d/project/ecb
+	url = https://github.com/ecb-home/ecb.git
