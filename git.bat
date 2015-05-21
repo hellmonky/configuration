@@ -8,6 +8,7 @@ git submodule add https://github.com/company-mode/company-mode.git
 git submodule add https://github.com/rust-lang/rust-mode.git
 
 git submodule add https://github.com/haskell/haskell-mode.git
+git submodule add git://jblevins.org/git/markdown-mode.git
 cd ..
 cd auto-complete
 git submodule add https://github.com/auto-complete/auto-complete.git

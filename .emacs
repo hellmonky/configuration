@@ -252,16 +252,9 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 	"-IC:/MinGW/lib/gcc/mingw32/4.6.1/include/c++"
 	"-IC:/MinGW/lib/gcc/mingw32/4.6.1/include/c++/mingw32"
 	"-D__MSVCRT__="))
-	
 
 
-;; （5）使用company-mode来替代auto-complete来处理自动补全的前端，安装简单
-;;(add-to-list 'load-path "~/.emacs.d/mode/company-mode")
-;;(autoload 'company-mode "company" 0 t)
-
-
-
-;; （6）使用sr-speedbar管理窗口
+;; （5）使用sr-speedbar管理窗口
 (add-to-list 'load-path "~/.emacs.d/project/sr-speedbar")
 (require 'sr-speedbar)
 (setq sr-speedbar-right-side nil)
@@ -274,7 +267,7 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 
 		  
 
-;; （7）安装ecb
+;; （6）安装ecb
 (add-to-list 'load-path "~/.emacs.d/project/ecb/")
 ;;加载ecb
 (require 'ecb)
@@ -308,10 +301,15 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 (global-set-key (kbd "<C-f1>") 'my-ecb-active-or-deactive)
 
 
-;; （8）单进程守护：在windows下只打开一个emacs，从而加快文本处理速度
+;; （7）单进程守护：在windows下只打开一个emacs，从而加快文本处理速度
 (server-start)
 
-;; （9）使用内置的python-mode：开启python支持，但是调用ipython还是存在问题
+;; （8）各种模式的添加：统一放置在mode文件夹下
+;;<1>使用company-mode来替代auto-complete来处理自动补全的前端，安装简单
+;;(add-to-list 'load-path "~/.emacs.d/mode/company-mode")
+;;(autoload 'company-mode "company" 0 t)
+
+;;<2>使用内置的python-mode：开启python支持，但是调用ipython还是存在问题
 (require 'python)
 ;; 完成python相关设置
 (setq
@@ -326,26 +324,12 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
   python-shell-completion-string-code
     "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")
 	
-;; （10）rust mode支持，来自官方：https://github.com/rust-lang/rust-mode
+;;<3>rust mode支持，来自官方：https://github.com/rust-lang/rust-mode
 (add-to-list 'load-path "~/.emacs.d/mode/rust-mode")
 (autoload 'rust-mode "rust-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
 
-;; （11）haskell mode支持
-;;(add-to-list 'load-path  "~/.emacs.d/mode/haskell-mode")
-
-;;(require 'haskell-mode)
-
-;;(require 'haskell-mode-autoloads)
-;;(add-to-list 'Info-default-directory-list "~/lib/emacs/haskell-mode/")
-
-
-;;(add-to-list 'auto-mode-alist '("\\.hs\\'" . haskell-mode))
-;;(add-to-list 'auto-mode-alist '("\\.lhs\\'" . literate-haskell-mode))
-;;(add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
-
-;;也可以使用git来安装管理haskell mode
-;;进入emacs之后输入 C-u 0 M-x byte-recompile-directory 来进入要编译的文件夹下
+;;<4>haskell mode支持
 (add-to-list 'load-path  "~/.emacs.d/mode/haskell-mode")
 ;;增加tab支持
 (add-hook 'haskell-mode-hook 'haskell-indentation-mode)
@@ -370,3 +354,11 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 (define-key haskell-cabal-mode-map (kbd "C-c c") 'haskell-process-cabal)
 (custom-set-variables
   '(haskell-process-type 'ghci))
+  
+;;<5>markdown mode支持
+(add-to-list 'load-path  "~/.emacs.d/mode/markdown-mode")
+(autoload 'markdown-mode "markdown-mode"
+   "Major mode for editing Markdown files" t)
+(add-to-list 'auto-mode-alist '("\\.text\\'" . markdown-mode))
+(add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
+(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))

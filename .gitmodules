@@ -25,3 +25,6 @@
 [submodule ".emacs.d/project/ecb"]
 	path = .emacs.d/project/ecb
 	url = https://github.com/ecb-home/ecb.git
+[submodule ".emacs.d/mode/markdown-mode"]
+	path = .emacs.d/mode/markdown-mode
+	url = git://jblevins.org/git/markdown-mode.git
