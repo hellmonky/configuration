@@ -1,0 +1,104 @@
+;; 基本外观设置
+;行号显示
+(global-linum-mode t)
+;禁用工具栏
+(tool-bar-mode 0)
+;禁用菜单栏，F10 开启关闭菜单
+(menu-bar-mode 0)
+;禁用滚动栏，用鼠标滚轮代替
+;;(scroll-bar-mode 0)
+;禁用启动画面
+(setq inhibit-startup-message t)
+;尺寸
+(setq initial-frame-alist '( (width . 90) (height . 35)))
+;时间设置
+(display-time-mode 1);;启用时间显示设置，在minibuffer上面的那个杠上
+(setq display-time-24hr-format t);;时间使用24小时制
+(setq display-time-day-and-date t);;时间显示包括日期和具体时间
+(setq display-time-interval 10);;时间的变化频率，单位多少来着？
+;设置默认打开目录
+(setq default-directory "d:\\work_project\\")
+;改变 Emacs 固执的要你回答 yes 的行为。按 y 或空格键表示 yes，n 表示 no
+(fset 'yes-or-no-p 'y-or-n-p)
+;打开括号匹配显示模式
+(setq show-paren-mode t)
+;括号匹配时可以高亮显示另外一边的括号，但光标不会烦人的跳到另一个括号处
+(setq show-paren-style 'parenthesis)
+;光标靠近鼠标指针时，让鼠标指针自动让开，别挡住视线。
+(setq mouse-avoidance-mode 'animate)
+;在标题栏显示buffer的名字，而不是 emacs@wangyin.com 这样没用的提示
+(setq frame-title-format "emacs@%b")
+;允许emacs和外部其他程序的粘贴
+(setq x-select-enable-clipboard t)
+;设置有用的个人信息,这在很多地方有用。
+(setq user-full-name "hellmonky")
+(setq user-mail-address "hellmonky@163.com")
+;; 备份文件目录
+(setq backup-by-copying t) ; 自动备份
+;;自动备份目录~/.emacs.d/backup
+(setq backup-directory-alist '(("." . "~/.emacs.d/backup"))) 
+(setq delete-old-versions t) ; 自动删除旧的备份文件
+(setq kept-new-versions 2) ; 保留最近的3个备份文件
+(setq kept-old-versions 1) ; 保留最早的2个备份文件
+(setq version-control t) ; 多次备份
+ 
+ 
+;; 添加auto-complete插件
+(add-to-list 'load-path "~/.emacs.d/auto-complete/fuzzy-el")
+(add-to-list 'load-path "~/.emacs.d/auto-complete/popup-el")
+(add-to-list 'load-path "~/.emacs.d/auto-complete/auto-complete")
+;; 添加auto-complete插件的增强补全
+(add-to-list 'load-path "~/.emacs.d/auto-complete/pos-tip")
+(require 'pos-tip)
+(setq ac-quick-help-prefer-pos-tip t)   ;default is t
+;; 添加auto-complete插件的默认字典
+(require 'auto-complete-config)
+(add-to-list 'ac-dictionary-directories
+             "~/.emacs.d/auto-complete/auto-complete/dict")
+(ac-config-default)
+;;设置代码补全的提示帮助
+(setq ac-use-quick-help t)
+(setq ac-quick-help-delay 1.0)
+;; 使用fuzzy来实现模糊匹配
+(setq ac-fuzzy-enable t)
+
+;; 使用company-mode来替代auto-complete来处理自动补全的前端，安装简单
+;;(add-to-list 'load-path "~/.emacs.d/company-mode")
+;;(autoload 'company-mode "company" nil t)
+
+
+;; 添加yasnippet插件
+(add-to-list 'load-path "~/.emacs.d/yasnippet")
+(require 'yasnippet)
+(yas-global-mode 1)
+
+;; 安装color-theme，所有主题相关的都统一放在color-theme文件夹下
+(add-to-list 'load-path "~/.emacs.d/color-theme/color-theme-6.6.0")
+(require 'color-theme)
+(color-theme-initialize)
+;;这个是color-theme默认自带的主题
+;;(color-theme-robin-hood)
+;;(color-theme-arjen)
+;; 安装solarized主题
+(add-to-list 'custom-theme-load-path "~/.emacs.d/color-theme/emacs-color-theme-solarized/")
+(load-theme 'solarized t)
+;;
+(set-frame-parameter nil 'background-mode 'dark)
+(set-terminal-parameter nil 'background-mode 'dark)
+(enable-theme 'solarized)
+;;;;调节整体的主题表现
+(add-hook 'after-make-frame-functions
+          (lambda (frame)
+            (set-frame-parameter frame
+                                 'background-mode
+                                 (if (display-graphic-p frame) 'light 'dark))
+            (enable-theme 'solarized)))
+;;;;
+
+
+;;安装ecb
+(add-to-list 'load-path "~/.emacs.d/ecb/")
+;;加载ecb
+(require 'ecb)
+;;打开ecb支持
+(ecb-activate)
