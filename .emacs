@@ -356,12 +356,19 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
   '(haskell-process-type 'ghci))
   
 ;;<5>markdown mode支持
+;;来源：http://jblevins.org/projects/markdown-mode/
 (add-to-list 'load-path  "~/.emacs.d/mode/markdown-mode")
-(autoload 'markdown-mode "markdown-mode"
-   "Major mode for editing Markdown files" t)
-(add-to-list 'auto-mode-alist '("\\.text\\'" . markdown-mode))
-(add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
-(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
+;;官方给出的是标砖markdown模式的配置
+;;(autoload 'markdown-mode "markdown-mode" "Major mode for editing Markdown files" t)
+;;使用gfm-mode作为markdown的主要模式：http://superuser.com/questions/552888/auto-load-gfm-mode
+(autoload 'gfm-mode "markdown-mode" "Major mode for editing Markdown files" t)
+;;需要注意的是还有GitHub Flavored Markdown模式，应该进入不同的模式
+(add-to-list 'auto-mode-alist '("README\\.md\\'" . gfm-mode))
+(add-to-list 'auto-mode-alist '("\\.text\\'" . gfm-mode))
+(add-to-list 'auto-mode-alist '("\\.markdown\\'" . gfm-mode))
+;;gfm-mode说明：https://help.github.com/articles/github-flavored-markdown/
+;;然后还有一个对比说明：http://www.worldhello.net/gotgithub/appendix/markups.html
+
 
 ;;<6>scheme支持
 ;;来源：http://www.yinwang.org/blog-cn/2013/04/11/scheme-setup/
@@ -417,6 +424,7 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 (add-hook 'scheme-mode-hook
   (lambda ()
     (paredit-mode 1)
+	;;自己修改了快捷键，F11表示读入当前的s表达式
     (define-key scheme-mode-map (kbd "<f11>") 'scheme-send-last-sexp-split-window)
     (define-key scheme-mode-map (kbd "<f12>") 'scheme-send-definition-split-window)))
 
@@ -425,21 +433,27 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 ;;（9）windows下使用emacs的一些调整：
 
 ;;来源：http://kidneyball.iteye.com/blog/1014537
-;;<1>实际使用中经常需要使用系统剪贴板（与其他编辑器或浏览器互相复制粘贴）
-;;CUA模式对按键习惯影响太大，不想用。用鼠标中键可以粘贴，但太麻烦。
-;;可以在.emacs中加入以下代码，把C-c C-c设为复制到系统剪贴板，C-c C-v设为从系统剪贴板粘贴。
-(global-set-key "\C-c\C-c" 'clipboard-kill-ring-save)
-(global-set-key "\C-c\C-v" 'clipboard-yank)
-;;<2>C-z默认是挂起emacs，跳回到shell中，这对文本型的shell很有用。
+;;<1>C-z默认是挂起emacs，跳回到shell中，这对文本型的shell很有用。
 ;;但在windows中，事实上变成了毫无实际意义的窗口最小化，浪费了C-z这么顺手的键。
-;;可以用以下代码把C-z改为一个类似C-x的组合起始键。这样使用C-z就等于使用了C-x回车的整个功能
+;;可以用以下代码把C-z改为一个类似C-x的组合起始键。
+;;这样就可以自定义使用C-z来完成类似于C-x的功能了。
 (define-prefix-command 'ctl-z-map)
 (global-set-key (kbd "C-z") 'ctl-z-map)
+;;<2>实际使用中经常需要使用系统剪贴板（与其他编辑器或浏览器互相复制粘贴）
+;;CUA模式对按键习惯影响太大，不想用。用鼠标中键可以粘贴，但太麻烦。
+;;使用上述自定义功能组合按键来实现复制和粘贴功能
+;;可以在.emacs中加入以下代码，把C-z C-c设为复制到系统剪贴板，C-z C-v设为从系统剪贴板粘贴。
+(global-set-key "\C-z\C-c" 'clipboard-kill-ring-save)
+(global-set-key "\C-z\C-v" 'clipboard-yank)
 ;;<3>使用emacs时经常需要管理多个buffer，C-x C-b的默认界面太过简陋。
 ;;emacs事实上已经提供了更好的buffer管理界面ibuffer，在配置文件中选用即可。
 ;;启用ibuffer支持，增强*buffer*  
 (require 'ibuffer)
 (global-set-key (kbd "C-x C-b") 'ibuffer)
+;;<4>标记文本区域起始位置的按键命令是C-Space，在中文系统下被输入切换热键冲掉了。
+;;默认的候补方案是M-@，其实就是Alt-Shift-2，非常难按。改为了C-c m。 
+(global-set-key "\C-cm" 'set-mark-command)
+
 
 ;;来源：https://icoderme.wordpress.com/2011/02/02/ctab_el/
 ;;<4>使用ctab显示多个buffer：
@@ -453,3 +467,12 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 ;;终于可以方便的查看当前buffer了，使用C-x k来关闭当前的buffer，泪流满面啊！
 
 
+;;随着配置文件的增加，发现一个最为明显的问题：不同模式下存在快捷键冲突
+;;使用global-set-key为全局按键绑定
+;;而在某种mode中，应该避免污染全局按键设置，使用local-set-key。
+;;应该习惯于使用 mode-hook 来针对不同mode进行个性化的设置。
+
+
+
+;;所以最好就是根据自己需求仔细使用定制，那么整个设置也应该做出调整。
+;;来源：http://blog.jamespan.me/2015/04/05/the-return-of-the-emacs/
