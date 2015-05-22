@@ -26,7 +26,7 @@
 ;;(scroll-bar-mode 0)
 ;禁用启动画面
 (setq inhibit-startup-message t)
-;尺寸
+;尺寸：这儿设置宽度为90个字符，用于显示编码内容
 (setq initial-frame-alist '( (width . 90) (height . 35)))
 ;时间设置
 (display-time-mode 1);;启用时间显示设置，在minibuffer上面的那个杠上
@@ -362,3 +362,94 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 (add-to-list 'auto-mode-alist '("\\.text\\'" . markdown-mode))
 (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
 (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
+
+;;<6>scheme支持
+;;来源：http://www.yinwang.org/blog-cn/2013/04/11/scheme-setup/
+(add-to-list 'load-path  "~/.emacs.d/mode/scheme-mode")
+;;自动加载paredit-mode
+(autoload 'paredit-mode "paredit"
+  "Minor mode for pseudo-structurally editing Lisp code."
+  t)
+;;添加配置
+(require 'cmuscheme)
+;;设置解释器
+;;定义是否为windows环境判断
+;;来源：http://kelvinh.github.io/blog/2013/07/21/scheme-configuration-in-emacs/
+(defconst is-os-windows (string-equal system-type "windows-nt")
+  "non-nil means it is windows operating system")
+;;然后根据当前是否为windows环境选择对应的解释器
+(if is-os-windows
+	(setq scheme-program-name "Racket");;使windows下用的scheme解释器
+	(setq scheme-program-name "guile"));;linux下使用的scheme解释器
+;; bypass the interactive question and start the default interpreter
+(defun scheme-proc ()
+  "Return the current Scheme process, starting one if necessary."
+  (unless (and scheme-buffer
+               (get-buffer scheme-buffer)
+               (comint-check-proc scheme-buffer))
+    (save-window-excursion
+      (run-scheme scheme-program-name)))
+  (or (scheme-get-process)
+      (error "No current process. See variable `scheme-buffer'")))
+(defun scheme-split-window ()
+  (cond
+   ((= 1 (count-windows))
+    (delete-other-windows)
+    (split-window-vertically (floor (* 0.68 (window-height))))
+    (other-window 1)
+    (switch-to-buffer "*scheme*")
+    (other-window 1))
+   ((not (find "*scheme*"
+               (mapcar (lambda (w) (buffer-name (window-buffer w)))
+                       (window-list))
+               :test 'equal))
+    (other-window 1)
+    (switch-to-buffer "*scheme*")
+    (other-window -1))))
+(defun scheme-send-last-sexp-split-window ()
+  (interactive)
+  (scheme-split-window)
+  (scheme-send-last-sexp))
+(defun scheme-send-definition-split-window ()
+  (interactive)
+  (scheme-split-window)
+  (scheme-send-definition))
+(add-hook 'scheme-mode-hook
+  (lambda ()
+    (paredit-mode 1)
+    (define-key scheme-mode-map (kbd "<f11>") 'scheme-send-last-sexp-split-window)
+    (define-key scheme-mode-map (kbd "<f12>") 'scheme-send-definition-split-window)))
+
+
+
+;;（9）windows下使用emacs的一些调整：
+
+;;来源：http://kidneyball.iteye.com/blog/1014537
+;;<1>实际使用中经常需要使用系统剪贴板（与其他编辑器或浏览器互相复制粘贴）
+;;CUA模式对按键习惯影响太大，不想用。用鼠标中键可以粘贴，但太麻烦。
+;;可以在.emacs中加入以下代码，把C-c C-c设为复制到系统剪贴板，C-c C-v设为从系统剪贴板粘贴。
+(global-set-key "\C-c\C-c" 'clipboard-kill-ring-save)
+(global-set-key "\C-c\C-v" 'clipboard-yank)
+;;<2>C-z默认是挂起emacs，跳回到shell中，这对文本型的shell很有用。
+;;但在windows中，事实上变成了毫无实际意义的窗口最小化，浪费了C-z这么顺手的键。
+;;可以用以下代码把C-z改为一个类似C-x的组合起始键。这样使用C-z就等于使用了C-x回车的整个功能
+(define-prefix-command 'ctl-z-map)
+(global-set-key (kbd "C-z") 'ctl-z-map)
+;;<3>使用emacs时经常需要管理多个buffer，C-x C-b的默认界面太过简陋。
+;;emacs事实上已经提供了更好的buffer管理界面ibuffer，在配置文件中选用即可。
+;;启用ibuffer支持，增强*buffer*  
+(require 'ibuffer)
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+
+;;来源：https://icoderme.wordpress.com/2011/02/02/ctab_el/
+;;<4>使用ctab显示多个buffer：
+;;自己修改了代码的Bind/unbind shortcut keys部分，使用C-c 然后左右键来切换，防止冲突
+;;本来想改为M-x，但是不行（http://stackoverflow.com/questions/9462111/emacs-error-key-sequence-m-x-g-starts-with-non-prefix-key-m-x）
+(add-to-list 'load-path  "~/.emacs.d/project/ctab")
+(require 'ctab)
+(ctab-mode t)
+;; 如果需要让.h文件和.c/.cpp文件排在一起，则增加下面一行:
+(setq ctab-smart t)
+;;终于可以方便的查看当前buffer了，使用C-x k来关闭当前的buffer，泪流满面啊！
+
+

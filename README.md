@@ -1,5 +1,5 @@
 # emacs.d
->emacs configuration for windows
+>emacs configuration for general and windows
 >***by hellmonky***
 
 ## 前言
@@ -273,7 +273,6 @@ ctags，etags，cscope和cedet都是通过对源代码进行预处理，分析�
 >>(2) exec-path：
 exec-path是用来帮助emacs寻找可以++**直接**++使用的外部程序。所谓直接，表明是作为一个子进程存在的程序。这个子进程可以继承PATH环境变量，从而让子进程也可以找到对应的程序的执行路径。
 >>>举个例子来说，如果你你指设置grep的执行路径给exec-path，你会发现，M-x grep执行不正确。那是因为，grep是通过一个sh子进程去执行的，所以，正确的办法是，更新PATH环境变量。
-
 3. 知道了以上emacs需要的变量之后使用程序对这两个变量进行绑定设置：
 ```shell
 (defun extra_bin (path)
@@ -451,5 +450,8 @@ git push -u origin master
 经过上述基本git操作就将本地的配置文件同步到自己的github项目主页了。
 
 ##（7）更多插件相关的基本安装和配置
+>更多的配置细节还是参考.emacs中的内容，以其中的内容为准，文档更新速度慢于该文件的更新
+
+
 
 
