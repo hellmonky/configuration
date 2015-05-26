@@ -4,9 +4,6 @@
 [submodule ".emacs.d/mode/rust-mode"]
 	path = .emacs.d/mode/rust-mode
 	url = https://github.com/rust-lang/rust-mode.git
-[submodule ".emacs.d/mode/haskell-mode"]
-	path = .emacs.d/mode/haskell-mode
-	url = https://github.com/haskell/haskell-mode.git
 [submodule ".emacs.d/auto-complete/auto-complete"]
 	path = .emacs.d/auto-complete/auto-complete
 	url = https://github.com/auto-complete/auto-complete.git

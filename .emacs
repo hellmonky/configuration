@@ -34,7 +34,7 @@
 (setq display-time-day-and-date t);;时间显示包括日期和具体时间
 (setq display-time-interval 10);;时间的变化频率，单位多少来着？
 ;设置默认打开目录
-(setq default-directory "d:\\work_project\\")
+;(setq default-directory "E:\\MyGit\\memo\\org\\")
 ;改变 Emacs 固执的要你回答 yes 的行为。按 y 或空格键表示 yes，n 表示 no
 (fset 'yes-or-no-p 'y-or-n-p)
 ;打开括号匹配显示模式
@@ -78,7 +78,55 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;二 定制设置
+;;二 windows下使用emacs的一些调整：
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;来源：http://kidneyball.iteye.com/blog/1014537
+;;<1>C-z默认是挂起emacs，跳回到shell中，这对文本型的shell很有用。
+;;但在windows中，事实上变成了毫无实际意义的窗口最小化，浪费了C-z这么顺手的键。
+;;可以用以下代码把C-z改为一个类似C-x的组合起始键。
+;;这样就可以自定义使用C-z来完成类似于C-x的功能了。
+(define-prefix-command 'ctl-z-map)
+(global-set-key (kbd "C-z") 'ctl-z-map)
+;;<2>实际使用中经常需要使用系统剪贴板（与其他编辑器或浏览器互相复制粘贴）
+;;CUA模式对按键习惯影响太大，不想用。用鼠标中键可以粘贴，但太麻烦。
+;;使用上述自定义功能组合按键来实现复制和粘贴功能
+;;可以在.emacs中加入以下代码，把C-z C-c设为复制到系统剪贴板，C-z C-v设为从系统剪贴板粘贴。
+(global-set-key "\C-z\C-c" 'clipboard-kill-ring-save)
+(global-set-key "\C-z\C-v" 'clipboard-yank)
+;;<3>使用emacs时经常需要管理多个buffer，C-x C-b的默认界面太过简陋。
+;;emacs事实上已经提供了更好的buffer管理界面ibuffer，在配置文件中选用即可。
+;;启用ibuffer支持，增强*buffer*  
+(require 'ibuffer)
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+;;<4>标记文本区域起始位置的按键命令是C-Space，在中文系统下被输入切换热键冲掉了。
+;;默认的候补方案是M-@，其实就是Alt-Shift-2，非常难按。改为了C-c m。 
+(global-set-key "\C-cm" 'set-mark-command)
+
+
+;;来源：https://icoderme.wordpress.com/2011/02/02/ctab_el/
+;;<4>使用ctab显示多个buffer：
+;;自己修改了代码的Bind/unbind shortcut keys部分，使用C-c 然后左右键来切换，防止冲突
+;;本来想改为M-x，但是不行（http://stackoverflow.com/questions/9462111/emacs-error-key-sequence-m-x-g-starts-with-non-prefix-key-m-x）
+(add-to-list 'load-path  "~/.emacs.d/project/ctab")
+(require 'ctab)
+(ctab-mode t)
+;; 如果需要让.h文件和.c/.cpp文件排在一起，则增加下面一行:
+(setq ctab-smart t)
+;;终于可以方便的查看当前buffer了，使用C-x k来关闭当前的buffer，泪流满面啊！
+
+
+;;随着配置文件的增加，发现一个最为明显的问题：不同模式下存在快捷键冲突
+;;使用global-set-key为全局按键绑定
+;;而在某种mode中，应该避免污染全局按键设置，使用local-set-key。
+;;应该习惯于使用 mode-hook 来针对不同mode进行个性化的设置。
+;;所以最好就是根据自己需求仔细使用定制，那么整个设置也应该做出调整。
+;;来源：http://blog.jamespan.me/2015/04/05/the-return-of-the-emacs/
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;三 定制设置
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; （1）主题和字体支持：
@@ -330,16 +378,28 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
 
 ;;<4>haskell mode支持
-(add-to-list 'load-path  "~/.emacs.d/mode/haskell-mode")
-;;增加tab支持
+;;注意：直接从github上下载的代码还需要编译生成其他文件才能够正常使用
+;;因为在windows下无法编译安装，最后还是使用elpa来安装
+(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                         ("marmalade" . "https://marmalade-repo.org/packages/")
+                         ("melpa" . "http://melpa.org/packages/")))
+(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
+;;然后添加当前安装的目录
+(add-to-list 'load-path  "~/.emacs.d/elpa/haskell-mode-20150524.2347")
+;;设置haskell的三个模式中的haskell-indentation-mode为有效，设置Enter和Tab的作用
 (add-hook 'haskell-mode-hook 'haskell-indentation-mode)
+;;增加tab支持
+;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+;;设置按键绑定的基本包
 (require 'haskell-interactive-mode)
 (require 'haskell-process)
 (add-hook 'haskell-mode-hook 'interactive-haskell-mode)
+;;设置基本变量
 (custom-set-variables
   '(haskell-process-suggest-remove-import-lines t)
   '(haskell-process-auto-import-loaded-modules t)
   '(haskell-process-log t))
+;;Haskell-mode按键绑定
 (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-or-reload)
 (define-key haskell-mode-map (kbd "C-`") 'haskell-interactive-bring)
 (define-key haskell-mode-map (kbd "C-c C-t") 'haskell-process-do-type)
@@ -348,13 +408,15 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 (define-key haskell-mode-map (kbd "C-c C-k") 'haskell-interactive-mode-clear)
 (define-key haskell-mode-map (kbd "C-c c") 'haskell-process-cabal)
 (define-key haskell-mode-map (kbd "SPC") 'haskell-mode-contextual-space)
+;;cabal-mode按键绑定
 (define-key haskell-cabal-mode-map (kbd "C-`") 'haskell-interactive-bring)
 (define-key haskell-cabal-mode-map (kbd "C-c C-k") 'haskell-interactive-mode-clear)
 (define-key haskell-cabal-mode-map (kbd "C-c C-c") 'haskell-process-cabal-build)
 (define-key haskell-cabal-mode-map (kbd "C-c c") 'haskell-process-cabal)
-(custom-set-variables
-  '(haskell-process-type 'ghci))
-  
+;;设置repl是哪个（和scheme类似）
+(custom-set-variables '(haskell-process-type 'ghci))
+
+
 ;;<5>markdown mode支持
 ;;来源：http://jblevins.org/projects/markdown-mode/
 (add-to-list 'load-path  "~/.emacs.d/mode/markdown-mode")
@@ -366,6 +428,7 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 (add-to-list 'auto-mode-alist '("README\\.md\\'" . gfm-mode))
 (add-to-list 'auto-mode-alist '("\\.text\\'" . gfm-mode))
 (add-to-list 'auto-mode-alist '("\\.markdown\\'" . gfm-mode))
+;;标准markdown格式说明：http://maogm.com/blog/markdown-syntax.html
 ;;gfm-mode说明：https://help.github.com/articles/github-flavored-markdown/
 ;;然后还有一个对比说明：http://www.worldhello.net/gotgithub/appendix/markups.html
 
@@ -429,50 +492,3 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
     (define-key scheme-mode-map (kbd "<f12>") 'scheme-send-definition-split-window)))
 
 
-
-;;（9）windows下使用emacs的一些调整：
-
-;;来源：http://kidneyball.iteye.com/blog/1014537
-;;<1>C-z默认是挂起emacs，跳回到shell中，这对文本型的shell很有用。
-;;但在windows中，事实上变成了毫无实际意义的窗口最小化，浪费了C-z这么顺手的键。
-;;可以用以下代码把C-z改为一个类似C-x的组合起始键。
-;;这样就可以自定义使用C-z来完成类似于C-x的功能了。
-(define-prefix-command 'ctl-z-map)
-(global-set-key (kbd "C-z") 'ctl-z-map)
-;;<2>实际使用中经常需要使用系统剪贴板（与其他编辑器或浏览器互相复制粘贴）
-;;CUA模式对按键习惯影响太大，不想用。用鼠标中键可以粘贴，但太麻烦。
-;;使用上述自定义功能组合按键来实现复制和粘贴功能
-;;可以在.emacs中加入以下代码，把C-z C-c设为复制到系统剪贴板，C-z C-v设为从系统剪贴板粘贴。
-(global-set-key "\C-z\C-c" 'clipboard-kill-ring-save)
-(global-set-key "\C-z\C-v" 'clipboard-yank)
-;;<3>使用emacs时经常需要管理多个buffer，C-x C-b的默认界面太过简陋。
-;;emacs事实上已经提供了更好的buffer管理界面ibuffer，在配置文件中选用即可。
-;;启用ibuffer支持，增强*buffer*  
-(require 'ibuffer)
-(global-set-key (kbd "C-x C-b") 'ibuffer)
-;;<4>标记文本区域起始位置的按键命令是C-Space，在中文系统下被输入切换热键冲掉了。
-;;默认的候补方案是M-@，其实就是Alt-Shift-2，非常难按。改为了C-c m。 
-(global-set-key "\C-cm" 'set-mark-command)
-
-
-;;来源：https://icoderme.wordpress.com/2011/02/02/ctab_el/
-;;<4>使用ctab显示多个buffer：
-;;自己修改了代码的Bind/unbind shortcut keys部分，使用C-c 然后左右键来切换，防止冲突
-;;本来想改为M-x，但是不行（http://stackoverflow.com/questions/9462111/emacs-error-key-sequence-m-x-g-starts-with-non-prefix-key-m-x）
-(add-to-list 'load-path  "~/.emacs.d/project/ctab")
-(require 'ctab)
-(ctab-mode t)
-;; 如果需要让.h文件和.c/.cpp文件排在一起，则增加下面一行:
-(setq ctab-smart t)
-;;终于可以方便的查看当前buffer了，使用C-x k来关闭当前的buffer，泪流满面啊！
-
-
-;;随着配置文件的增加，发现一个最为明显的问题：不同模式下存在快捷键冲突
-;;使用global-set-key为全局按键绑定
-;;而在某种mode中，应该避免污染全局按键设置，使用local-set-key。
-;;应该习惯于使用 mode-hook 来针对不同mode进行个性化的设置。
-
-
-
-;;所以最好就是根据自己需求仔细使用定制，那么整个设置也应该做出调整。
-;;来源：http://blog.jamespan.me/2015/04/05/the-return-of-the-emacs/
