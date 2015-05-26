@@ -5,7 +5,9 @@
 ## 前言
 自己之前根据网上的教程安装配置过emacs，然后用几下就不了了之了，原因有三个：
 >1.windows平台下提供的IDE支持很丰富和强大，例如VS对C++的支持已经很好了，更何况对C#的支持，所以相比之下emacs复杂的配置和使用对自己的吸引不大；
+
 >2.emacs的配置说明混乱，因为emacs是GUN的明星产品，而且由来已久，整个架构还是有不足指出，例如对插件的管理等，所以辛苦配置的东西不一定能用也是关键；
+
 >3.自己的畏惧心理，当初自己看到emacs之后感觉不会用，并且被别人推荐说是最强的编辑器，所以心理有畏惧状况，并且在配置的时候不懂ELisp也是自己导致心理障碍的原因。
 
 再次安装emacs的出发点：
@@ -17,7 +19,7 @@
 emacs是Linux下的优秀编辑器，没有windows的原生支持，所以需要使用预编译的安装文件或者自己手动使用mingw从源代码编译为可执行文件。
 目前windows下可以用的版本有：
 >（1）[X86的官方编译版本](https://ftp.gnu.org/gnu/emacs/windows/)；
->>（2）一个中国人维护的[X64编译版本](http://emacsbinw64.sourceforge.net/)。
+>（2）一个中国人维护的[X64编译版本](http://emacsbinw64.sourceforge.net/)。
 
 这两个版本，官方编译版本比较老而且只有32位程序，个人维护的版本比较新但是稳定性不确定。
 
@@ -286,6 +288,7 @@ Return the updated `exec-path'"
         (cons (expand-file-name path)
               exec-path)))
 ```
+
 4. 然后使用函数来设置多个变量：
 ```shell
 (mapc #'extra_bin
@@ -296,6 +299,7 @@ Return the updated `exec-path'"
          "~/extra_bin/clang"
          )))
 ```
+
 5. 接着，使用建立在auto-complete基础上的[auto-complete-clang](https://github.com/brianjcj/auto-complete-clang)代码包来使用clang作为补全的辅助程序，从github上pull下最新的代码，进行配置如下：
 ```shell
 ;;
@@ -370,12 +374,12 @@ ECB, A code browser for Emacs被托管在github的[ecb页面](https://github.com
 成功激活后Emacs窗口会被切成左右两半。左边的几个窗口依次显示：目录，当前目录下的文件，当前文件中的函数/全局变量等定义，文件浏览历史。如果打开了一个源文件后函数定义窗口里面是空的，有可能是因为这个项目过大cedet尚未完成对它的分析，闲置一段时间后就能看到文件里的定义。
 ECB提供了方便在这些窗口间切换的快捷键：
 ```shell
-切换到目录窗口 Ctrl-c . g d
-切换到文件窗口 Ctrl-c . g s
-切换到函数/方法窗口 Ctrl-c . g m
-切换到历史窗口 Ctrl-c . g h
-切换到上一个编辑窗口 Ctrl-c . g l
-更详细的帮助信息Ctrl-C . h
+切换到目录窗口			 Ctrl-c . g d
+切换到文件窗口			 Ctrl-c . g s
+切换到函数/方法窗口		Ctrl-c . g m
+切换到历史窗口			 Ctrl-c . g h
+切换到上一个编辑窗口	   Ctrl-c . g l
+更详细的帮助信息		 Ctrl-C . h
 ```
 通过上述快捷键就可以方便的不同的窗口切换了，方便对整个工程的管理。
 但是默认的ecb布局和设置还是有些不方便，整个左侧都是窗口这样很密集，不容易看，所以按照[网页](http://truongtx.me/2013/03/10/ecb-emacs-code-browser/)给出的方式进行布局定制，并且选择其中的[leftright2](http://ecb.sourceforge.net/docs/Changing-the-ECB-layout.html)样式：
