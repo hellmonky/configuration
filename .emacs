@@ -1,3 +1,11 @@
+;;随着配置文件的增加，发现一个最为明显的问题：不同模式下存在快捷键冲突
+;;使用global-set-key为全局按键绑定
+;;而在某种mode中，应该避免污染全局按键设置，使用local-set-key。
+;;应该习惯于使用 mode-hook 来针对不同mode进行个性化的设置。
+;;所以最好就是根据自己需求仔细使用定制，那么整个设置也应该做出调整。
+;;来源：http://blog.jamespan.me/2015/04/05/the-return-of-the-emacs/
+
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -10,6 +18,10 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;一 基本外观设置
@@ -34,7 +46,7 @@
 (setq display-time-day-and-date t);;时间显示包括日期和具体时间
 (setq display-time-interval 10);;时间的变化频率，单位多少来着？
 ;设置默认打开目录
-;(setq default-directory "E:\\MyGit\\memo\\org\\")
+(setq default-directory "E:\\MyGit\\note\\")
 ;改变 Emacs 固执的要你回答 yes 的行为。按 y 或空格键表示 yes，n 表示 no
 (fset 'yes-or-no-p 'y-or-n-p)
 ;打开括号匹配显示模式
@@ -77,6 +89,8 @@
 ;;;;
 
 
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;二 windows下使用emacs的一些调整：
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -102,7 +116,6 @@
 ;;默认的候补方案是M-@，其实就是Alt-Shift-2，非常难按。改为了C-c m。 
 (global-set-key "\C-cm" 'set-mark-command)
 
-
 ;;来源：https://icoderme.wordpress.com/2011/02/02/ctab_el/
 ;;<4>使用ctab显示多个buffer：
 ;;自己修改了代码的Bind/unbind shortcut keys部分，使用C-c 然后左右键来切换，防止冲突
@@ -114,13 +127,15 @@
 (setq ctab-smart t)
 ;;终于可以方便的查看当前buffer了，使用C-x k来关闭当前的buffer，泪流满面啊！
 
-
-;;随着配置文件的增加，发现一个最为明显的问题：不同模式下存在快捷键冲突
-;;使用global-set-key为全局按键绑定
-;;而在某种mode中，应该避免污染全局按键设置，使用local-set-key。
-;;应该习惯于使用 mode-hook 来针对不同mode进行个性化的设置。
-;;所以最好就是根据自己需求仔细使用定制，那么整个设置也应该做出调整。
-;;来源：http://blog.jamespan.me/2015/04/05/the-return-of-the-emacs/
+;;<5>设置默认编码:http://blog.waterlin.org/articles/set-emacs-default-coding-system.html
+;;使用M-x describe-coding-system 查看当前buffer的编码类型
+;;因为在使用orgmode的时候导出的md文件编码不是utf8的
+;;设置默认写文件需要的编码
+(setq default-buffer-file-coding-system 'utf-8)
+;;设置默认读取文件的编码
+(prefer-coding-system 'utf-8)
+;;如果读取的文件还是不对，那么就用M-x revert-buffer-with-coding-system来重新设置读入的编码类型
+;;碰到文件编码混乱的时候，最重要的一点，看到乱码的文件，不要随便保存。
 
 
 
@@ -415,6 +430,21 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 (define-key haskell-cabal-mode-map (kbd "C-c c") 'haskell-process-cabal)
 ;;设置repl是哪个（和scheme类似）
 (custom-set-variables '(haskell-process-type 'ghci))
+;;附上网上找到的配置资料：
+;;http://bbs.chinaunix.net/thread-1270108-1-1.html
+;;http://www.programgo.com/article/53751618345/
+;;https://github.com/serras/emacs-haskell-tutorial/blob/master/tutorial.md#indentation-modes
+;;http://sritchie.github.io/2011/09/25/haskell-in-emacs/
+;;https://github.com/chrisdone/chrisdone-emacs/blob/master/config/haskell.el
+
+;;添加代码格式化，根据[教程](https://github.com/haskell/haskell-mode/wiki/Autoformatting)
+;;在windows平台下安装[minghc](https://github.com/fpco/minghc)
+;;然后使用cabal管理包，在命令行中执行：
+;;cabal update
+;;cabal install stylish-haskell
+(setq haskell-stylish-on-save t)
+
+
 
 
 ;;<5>markdown mode支持
@@ -425,7 +455,8 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 ;;使用gfm-mode作为markdown的主要模式：http://superuser.com/questions/552888/auto-load-gfm-mode
 (autoload 'gfm-mode "markdown-mode" "Major mode for editing Markdown files" t)
 ;;需要注意的是还有GitHub Flavored Markdown模式，应该进入不同的模式
-(add-to-list 'auto-mode-alist '("README\\.md\\'" . gfm-mode))
+(add-to-list 'auto-mode-alist '("README'" . gfm-mode))
+(add-to-list 'auto-mode-alist '("\\.md\\'" . gfm-mode))
 (add-to-list 'auto-mode-alist '("\\.text\\'" . gfm-mode))
 (add-to-list 'auto-mode-alist '("\\.markdown\\'" . gfm-mode))
 ;;标准markdown格式说明：http://maogm.com/blog/markdown-syntax.html
@@ -492,3 +523,18 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
     (define-key scheme-mode-map (kbd "<f12>") 'scheme-send-definition-split-window)))
 
 
+;;<7>org mode设置
+;;<7.1>快速插入代码模版
+;;Emacs Org 7 以上的版本已经开始支持 easy-template
+;;只需要两部:
+;;1. 文本中输入 <s
+;;2. 按一下 Tab 键
+;;就会出现如下内容
+;;#+begin_src | <---光标处,可方便书写语言种类
+;;#+end_src
+;;官方给出的资料为：http://orgmode.org/manual/Easy-Templates.html
+;;<7.2>自动换行
+(add-hook 'org-mode-hook (lambda () (setq truncate-lines nil)))
+;;<7.3>添加markdown导出：http://stackoverflow.com/questions/22988092/emacs-org-mode-export-markdown
+;;但是实际使用的时候发现，导出的md文件不是gfm格式，并且
+(eval-after-load "org" '(require 'ox-md nil t))
