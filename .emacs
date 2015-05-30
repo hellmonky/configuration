@@ -49,10 +49,6 @@
 (setq default-directory "E:\\MyGit\\note\\")
 ;改变 Emacs 固执的要你回答 yes 的行为。按 y 或空格键表示 yes，n 表示 no
 (fset 'yes-or-no-p 'y-or-n-p)
-;打开括号匹配显示模式
-(setq show-paren-mode t)
-;括号匹配时可以高亮显示另外一边的括号，但光标不会烦人的跳到另一个括号处
-(setq show-paren-style 'parenthesis)
 ;光标靠近鼠标指针时，让鼠标指针自动让开，别挡住视线。
 (setq mouse-avoidance-mode 'animate)
 ;在标题栏显示buffer的名字，而不是 emacs@wangyin.com 这样没用的提示
@@ -139,9 +135,66 @@
 
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;三 自己添加的扩展
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;（1）获取所有正则表达式匹配的行放在buffer中：
+;;来源：http://stackoverflow.com/questions/2289883/emacs-copy-matching-lines
+;;首先定义获取正则表达式匹配结果的函数，然后放置在名为matching的buffer中
+(defun copy-lines-matching-re (re)
+  ;;1 函数提示说明
+  "find all lines matching the regexp RE in the current buffer putting the matching lines in a buffer named *matching*"
+  ;;2 添加交互提示
+  (interactive "sRegexp to match: ")
+  ;;3 创建一个新的名为“*matching*”的buffer，并且把它作为result-buffer来存储数据的结果
+  (let ((result-buffer (get-buffer-create "*matching*")));;let表达式创建局部变量result-buffer
+	;;（1）对当前新建的result-buffer进行擦除操作，保证没有内容
+    (with-current-buffer result-buffer (erase-buffer))
+	;;（2）然后将当前获取的结果写入到result-buffer中
+    (save-match-data 
+      (save-excursion ;;保存当前缓存的内容，包括位置和标记
+		;<1>首先，将标记设置为当前buffer的开始位置处
+		;;[This expression jumps the cursor to the minimum point in the buffer, that is, to the beginning of the buffer (or to the beginning of the accessible portion of the buffer if it is narrowed.)](http://www.gnu.org/software/emacs/manual/html_node/eintr/simplified_002dbeginning_002dof_002dbuffer.html)
+		;;goto-char：Emacs内建函数，其参数是个（内嵌）函数调用。也就是说这个函数的参数也是函数
+		;;point是Emacs内部名称，表示光标的当前位置。point-min返回当前buffer里第一个字符的位置值，几乎总是1
+		;;goto-char调用point-min，就等于其参数值为1，效果等同于把point移至buffer起始处。（http://blog.donews.com/leal/archive/2005/10/17/591883.aspx）
+        (goto-char (point-min))
+		;;<2>然后开始遍历当前的所有buffer，开始查找正则匹配内容
+		;;re-search-forward函数在当前buffer范围内搜索一个正则表达式。如果查找成功，它将point设置在匹配目标的最后一个字符的后面，并且返回成功
+		;;与search-forward类似，它接收四个参数：
+		;;第一个参数是要查找的正则表达式。表达式是一个被引号包括的字符串。
+		;;第二个参数是可选参数，限制搜索的范围，如果它不是nil，那么它一定是当前缓冲区中的某个位置（point），用于设定搜索的上限。
+		;;第三个可选参数指定搜索失败时如何处理：1 如果设置为nil，则导致函数在搜索失败时显示错误信息；2 如果设置为t，则什么也不做返回nil；3 如果设置为其它值将标记到设置的查询范围终点，并且返回nil。
+		;;第四个可选参数，用于指定重复次数。负数表示重复的向后搜索。
+        (while (re-search-forward re nil t);;这儿就是在当前buffer的所有范围内查找re匹配的结果，如果没有查询到就返回nil.
+          ;;princ：这个函数用于连接字符串
+		  ;;buffer-substring-no-properties：接受两个参数start和end，用于拷贝两者之间的字符串，并且不带有property信息
+		  ;;line-beginning-position：调用beginning-of-line函数，这个函数将标记移动到当前行的行首，如果带有非nil和1的正整型参数n，这个函数向前移动(n-1)行然后，标记该行的行首
+		  ;;所以 (line-beginning-position)和 (line-beginning-position 2)之间的就是正则匹配的那一行了
+		  (princ (buffer-substring-no-properties (line-beginning-position) 
+                                                 (line-beginning-position 2))
+                 result-buffer))))
+	;;（3）最后，将获取的结果显示到创建的buffer中
+    ;;使用函数pop-to-buffer将参数的内容显示到emacs中
+    (pop-to-buffer result-buffer)))
+	
+;;然后绑定到按键中，方便自己调用（当前所有的自定义函数都绑定到C-z按键上）
+(global-set-key (kbd "C-Z r") 'copy-lines-matching-re)
+;;问题：
+;;	(1)使用正则表达式没有办法获取内容：这个是因为perl的正则语法和elisp支持的正则语法不相同造成的
+;;	(2)这样获取的是整行的数据，原理上应该获取的是匹配的内容
+;;应用场景：获取网页数据中所有的下载链接，如（你懂得）：
+;;	磁力链接地址：(magnet:\?[a-zA-Z0-9]+.*)
+;;	电驴下载地址：(ed2k://.*)
+;;其他参考：
+;;	http://emacs.stackexchange.com/questions/7148/get-all-regexp-matches-in-buffer-as-a-list
+;;	http://codegolf.stackexchange.com/questions/44278/debunking-stroustrups-debunking-of-the-myth-c-is-for-large-complicated-pro/44319#44319
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;三 定制设置
+;;四 定制设置
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; （1）主题和字体支持：
@@ -538,3 +591,18 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 ;;<7.3>添加markdown导出：http://stackoverflow.com/questions/22988092/emacs-org-mode-export-markdown
 ;;但是实际使用的时候发现，导出的md文件不是gfm格式，并且
 (eval-after-load "org" '(require 'ox-md nil t))
+
+
+;;<8>括号匹配模式综合设置
+;1 打开括号匹配显示模式
+(show-paren-mode t)
+(setq show-paren-delay 0)
+(setq show-paren-style 'parenthesis);括号匹配时可以高亮显示另外一边的括号，但光标不会烦人的跳到另一个括号处
+;;2 括号自动补全（http://forum.ubuntu.org.cn/viewtopic.php?f=68&t=363635）
+(require 'electric)
+(electric-pair-mode t);;系统本身内置的智能自动补全括号
+(electric-indent-mode t);;编辑时智能缩进，类似于C-j的效果——这个C-j中，zencoding和electric-pair-mode冲突
+;;3 highlight-parentheses支持，将匹配的光标高亮
+(add-to-list 'load-path  "~/.emacs.d/mode/highlight-parentheses")
+(require 'highlight-parentheses)
+(global-highlight-parentheses-mode 1)
