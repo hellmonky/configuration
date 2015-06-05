@@ -46,7 +46,7 @@
 (setq display-time-day-and-date t);;时间显示包括日期和具体时间
 (setq display-time-interval 10);;时间的变化频率，单位多少来着？
 ;设置默认打开目录
-(setq default-directory "E:\\MyGit\\note\\")
+(setq default-directory "D:\\myGit\\note\\")
 ;改变 Emacs 固执的要你回答 yes 的行为。按 y 或空格键表示 yes，n 表示 no
 (fset 'yes-or-no-p 'y-or-n-p)
 ;光标靠近鼠标指针时，让鼠标指针自动让开，别挡住视线。
@@ -83,7 +83,6 @@
 (global-set-key [(mouse-5)] '(lambda () (interactive) (smooth-scroll 1)))
 (global-set-key [(mouse-4)] '(lambda () (interactive) (smooth-scroll -1)))
 ;;;;
-
 
 
 
@@ -149,9 +148,9 @@
   (interactive "sRegexp to match: ")
   ;;3 创建一个新的名为“*matching*”的buffer，并且把它作为result-buffer来存储数据的结果
   (let ((result-buffer (get-buffer-create "*matching*")));;let表达式创建局部变量result-buffer
-	;;（1）对当前新建的result-buffer进行擦除操作，保证没有内容
+    ;;（1）对当前新建的result-buffer进行擦除操作，保证没有内容
     (with-current-buffer result-buffer (erase-buffer))
-	;;（2）然后将当前获取的结果写入到result-buffer中
+    ;;（2）然后将当前获取的结果写入到result-buffer中
     (save-match-data 
       (save-excursion ;;保存当前缓存的内容，包括位置和标记
 		;<1>首先，将标记设置为当前buffer的开始位置处
@@ -168,15 +167,16 @@
 		;;第三个可选参数指定搜索失败时如何处理：1 如果设置为nil，则导致函数在搜索失败时显示错误信息；2 如果设置为t，则什么也不做返回nil；3 如果设置为其它值将标记到设置的查询范围终点，并且返回nil。
 		;;第四个可选参数，用于指定重复次数。负数表示重复的向后搜索。
         (while (re-search-forward re nil t);;这儿就是在当前buffer的所有范围内查找re匹配的结果，如果没有查询到就返回nil.
-          ;;princ：这个函数用于连接字符串
+	          ;;princ：这个函数用于连接字符串
 		  ;;buffer-substring-no-properties：接受两个参数start和end，用于拷贝两者之间的字符串，并且不带有property信息
 		  ;;line-beginning-position：调用beginning-of-line函数，这个函数将标记移动到当前行的行首，如果带有非nil和1的正整型参数n，这个函数向前移动(n-1)行然后，标记该行的行首
 		  ;;所以 (line-beginning-position)和 (line-beginning-position 2)之间的就是正则匹配的那一行了
 		  (princ (buffer-substring-no-properties (line-beginning-position) 
-                                                 (line-beginning-position 2))
-                 result-buffer))))
-	;;（3）最后，将获取的结果显示到创建的buffer中
+							 (line-beginning-position 2))
+			 result-buffer))))
+    ;;（3）最后，将获取的结果显示到创建的buffer中
     ;;使用函数pop-to-buffer将参数的内容显示到emacs中
+    ;;pop-to-buffer函数将当前数据放在参数result-buffer指定的buffer中显示
     (pop-to-buffer result-buffer)))
 	
 ;;然后绑定到按键中，方便自己调用（当前所有的自定义函数都绑定到C-z按键上）
@@ -606,3 +606,12 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 (add-to-list 'load-path  "~/.emacs.d/mode/highlight-parentheses")
 (require 'highlight-parentheses)
 (global-highlight-parentheses-mode 1)
+
+;;<9>添加emacs编辑记录支持
+;;问题原因：因为之前使用emacs编辑文档之后忘记编辑过的文件位置了，所以使用这个插件来帮助索引之前编辑的内容位置
+;;来源：http://daiyuwen.freeshell.org/gb/emacs_tools/history.html
+(add-to-list 'load-path  "~/.emacs.d/mode/history")
+(require 'history)
+
+;;<10>jdee(Java Development Environment for Emacs)配置使用
+
