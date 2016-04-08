@@ -53,7 +53,7 @@
 (setq display-time-day-and-date t);;时间显示包括日期和具体时间
 (setq display-time-interval 10);;时间的变化频率，单位多少来着？
 ;设置默认打开目录
-(setq default-directory "D:\\myGit\\note\\")
+;(setq default-directory "D:\\myGit\\note\\")
 ;改变 Emacs 固执的要你回答 yes 的行为。按 y 或空格键表示 yes，n 表示 no
 (fset 'yes-or-no-p 'y-or-n-p)
 ;光标靠近鼠标指针时，让鼠标指针自动让开，别挡住视线。
