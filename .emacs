@@ -18,7 +18,12 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ecb-options-version "2.40"))
+ '(ecb-options-version "2.40")
+ '(haskell-process-auto-import-loaded-modules t)
+ '(haskell-process-log t)
+ '(haskell-process-suggest-remove-import-lines t)
+ '(haskell-process-type (quote ghci))
+ '(package-selected-packages (quote (haskell-mode))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -470,10 +475,7 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 (require 'haskell-process)
 (add-hook 'haskell-mode-hook 'interactive-haskell-mode)
 ;;设置基本变量
-(custom-set-variables
-  '(haskell-process-suggest-remove-import-lines t)
-  '(haskell-process-auto-import-loaded-modules t)
-  '(haskell-process-log t))
+
 ;;Haskell-mode按键绑定
 (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-or-reload)
 (define-key haskell-mode-map (kbd "C-`") 'haskell-interactive-bring)
@@ -489,7 +491,7 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 (define-key haskell-cabal-mode-map (kbd "C-c C-c") 'haskell-process-cabal-build)
 (define-key haskell-cabal-mode-map (kbd "C-c c") 'haskell-process-cabal)
 ;;设置repl是哪个（和scheme类似）
-(custom-set-variables '(haskell-process-type 'ghci))
+
 ;;附上网上找到的配置资料：
 ;;http://bbs.chinaunix.net/thread-1270108-1-1.html
 ;;http://www.programgo.com/article/53751618345/
@@ -621,4 +623,13 @@ If set/leave chinese-font-size to nil, it will follow english-font-size"
 (require 'history)
 
 ;;<10>jdee(Java Development Environment for Emacs)配置使用
+
+;;<11>hlint支持：
+;; 使用hlint来支持haskell程序的提示和优化
+;; 来源：https://hackage.haskell.org/package/hlint
+(add-to-list 'load-path  "~/.emacs.d/mode/hlint")
+(require 'hs-lint)
+(defun my-haskell-mode-hook ()
+   (local-set-key "\C-cl" 'hs-lint))
+(add-hook 'haskell-mode-hook 'my-haskell-mode-hook)
 
